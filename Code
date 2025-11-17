@@ -1,0 +1,179 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// ---------------------- BOOK CLASS ----------------------
+class Book {
+    private int id;
+    private String title;
+    private String author;
+    private boolean isIssued;
+
+    public Book(int id, String title, String author) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.isIssued = false;
+    }
+
+    public int getId() { return id; }
+    public String getTitle() { return title; }
+    public String getAuthor() { return author; }
+    public boolean isIssued() { return isIssued; }
+
+    public void issue() {
+        isIssued = true;
+    }
+
+    public void returned() {
+        isIssued = false;
+    }
+
+    @Override
+    public String toString() {
+        return id + " | " + title + " | " + author + " | " + (isIssued ? "Issued" : "Available");
+    }
+}
+
+// ---------------------- USER CLASS ----------------------
+class User {
+    private int userId;
+    private String name;
+
+    public User(int userId, String name) {
+        this.userId = userId;
+        this.name = name;
+    }
+
+    public int getUserId() { return userId; }
+    public String getName() { return name; }
+
+    @Override
+    public String toString() {
+        return userId + " - " + name;
+    }
+}
+
+// ---------------------- LIBRARY CLASS ----------------------
+class Library {
+    private ArrayList<Book> books = new ArrayList<>();
+    private ArrayList<User> users = new ArrayList<>();
+
+    public void addBook(Book book) {
+        books.add(book);
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    public void issueBook(int bookId, int userId) {
+        Book book = findBook(bookId);
+        User user = findUser(userId);
+
+        if (book == null) {
+            System.out.println("❌ Book not found!");
+            return;
+        }
+        if (user == null) {
+            System.out.println("❌ User not found!");
+            return;
+        }
+        if (book.isIssued()) {
+            System.out.println("❌ Book already issued!");
+            return;
+        }
+
+        book.issue();
+        System.out.println("✅ Book '" + book.getTitle() + "' issued to " + user.getName());
+    }
+
+    public void returnBook(int bookId) {
+        Book book = findBook(bookId);
+
+        if (book == null) {
+            System.out.println("❌ Book not found!");
+            return;
+        }
+        if (!book.isIssued()) {
+            System.out.println("❌ Book is not issued!");
+            return;
+        }
+
+        book.returned();
+        System.out.println("✅ Book returned: " + book.getTitle());
+    }
+
+    public void showBooks() {
+        System.out.println("\n------ BOOK LIST ------");
+        for (Book b : books) {
+            System.out.println(b);
+        }
+    }
+
+    private Book findBook(int id) {
+        for (Book b : books) {
+            if (b.getId() == id) return b;
+        }
+        return null;
+    }
+
+    private User findUser(int id) {
+        for (User u : users) {
+            if (u.getUserId() == id) return u;
+        }
+        return null;
+    }
+}
+
+// ---------------------- MAIN CLASS ----------------------
+public class LibraryManagementSystem {
+    public static void main(String[] args) {
+
+        Library library = new Library();
+        Scanner sc = new Scanner(System.in);
+
+        // Sample Data
+        library.addBook(new Book(1, "Java Basics", "James Gosling"));
+        library.addBook(new Book(2, "OOP Concepts", "Grady Booch"));
+        library.addUser(new User(101, "Yogita"));
+        library.addUser(new User(102, "Rahul"));
+
+        while (true) {
+            System.out.println("\n===== LIBRARY MENU =====");
+            System.out.println("1. Show Books");
+            System.out.println("2. Issue Book");
+            System.out.println("3. Return Book");
+            System.out.println("4. Exit");
+            System.out.print("Enter choice: ");
+
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    library.showBooks();
+                    break;
+
+                case 2:
+                    System.out.print("Enter Book ID: ");
+                    int bId = sc.nextInt();
+                    System.out.print("Enter User ID: ");
+                    int uId = sc.nextInt();
+                    library.issueBook(bId, uId);
+                    break;
+
+                case 3:
+                    System.out.print("Enter Book ID: ");
+                    int rbId = sc.nextInt();
+                    library.returnBook(rbId);
+                    break;
+
+                case 4:
+                    System.out.println("👋 Exiting...");
+                    return;
+
+                default:
+                    System.out.println("❌ Invalid choice! Try again.");
+            }
+        }
+    }
+}
